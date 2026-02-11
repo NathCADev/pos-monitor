@@ -1,0 +1,148 @@
+# GitHub Actions Workflow
+# Este arquivo configura a automação que roda na nuvem (GRÁTIS!)
+# Similar a um agendamento de tarefas (Task Scheduler no Windows)
+
+name: Monitor Pós-Graduação EAD
+
+# Quando executar
+on:
+  # Executa em um horário agendado (schedule)
+  schedule:
+    # Cron: toda segunda-feira às 8h00 (horário UTC, subtraia 3h para Brasília)
+    # Exemplo: '0 11 * * 1' = 11h UTC = 8h Brasília, toda segunda
+    # Você pode usar https://crontab.guru/ para entender/criar outras regras
+    - cron: '0 11 * * 1'  # Segunda às 8h BRT
+    - cron: '0 14 * * 4'  # Quinta às 11h BRT
+  
+  # Também permite executar manualmente pelo GitHub
+  workflow_dispatch:
+  
+  # E executa em pushes para teste (remova depois se quiser)
+  push:
+    branches: [ main ]
+
+# Permissões necessárias
+permissions:
+  contents: write  # Para salvar o histórico.json
+
+# Trabalhos a executar
+jobs:
+  monitorar:
+    name: Monitorar Novas Oportunidades
+    runs-on: ubuntu-latest  # Roda em uma máquina virtual Ubuntu (grátis!)
+    
+    steps:
+      # 1. Baixa o código do repositório
+      - name: 📥 Checkout do repositório
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      # 2. Configura o Python
+      - name: 🐍 Configurar Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'  # Cache das dependências para ser mais rápido
+      
+      # 3. Instala as dependências
+      - name: 📦 Instalar dependências
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      # 4. Executa o script principal
+      - name: 🔍 Executar monitoramento
+        env:
+          # Variáveis de ambiente seguras (configuradas nos Secrets do GitHub)
+          EMAIL_REMETENTE: ${{ secrets.EMAIL_REMETENTE }}
+          EMAIL_SENHA: ${{ secrets.EMAIL_SENHA }}
+          EMAIL_DESTINATARIO: ${{ secrets.EMAIL_DESTINATARIO }}
+        run: |
+          python scraper.py
+      
+      # 5. Salva o histórico de volta no repositório
+      - name: 💾 Salvar histórico e resultados
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add historico.json resultados.json
+          git diff --quiet && git diff --staged --quiet || git commit -m "🤖 Atualizar dados - $(date +'%Y-%m-%d %H:%M')"
+          git push
+        continue-on-error: true  # Não falha se não houver mudanças
+      
+      # 6. Notifica se houver erro
+      - name: 📊 Status da execução
+        if: always()
+        run: |
+          if [ $? -eq 0 ]; then
+            echo "✅ Monitoramento executado com sucesso!"
+          else
+            echo "❌ Houve algum erro no monitoramento"
+          fi
+```
+
+Cole isso no editor que apareceu.
+
+---
+
+### 5️⃣ Fazer commit
+
+Role até o final da página e você vai ver:
+```
+┌────────────────────────────────────────┐
+│ Commit new file                        │
+├────────────────────────────────────────┤
+│ Create .github/workflows/monitor.yml   │
+│                                        │
+│ ● Commit directly to the main branch  │
+│                                        │
+│         [Commit new file]              │  ← CLIQUE AQUI
+└────────────────────────────────────────┘
+```
+
+Clique em **"Commit new file"** (botão verde)
+
+---
+
+### 6️⃣ Verificar se funcionou
+
+Depois do commit:
+
+1. Vá para aba **Actions** novamente
+2. Agora você DEVE ver na lista da esquerda:
+```
+   All workflows
+   Monitor Pós-Graduação EAD  ← APARECEU!
+   pages-build-deployment
+```
+
+---
+
+## ✅ Depois que o Workflow Aparecer
+
+Aí sim você continua:
+
+1. Clique em "Monitor Pós-Graduação EAD"
+2. Clique em "Run workflow"
+3. Clique no botão verde "Run workflow"
+4. Aguarde executar
+5. Acesse sua página: `https://NathCADev.github.io/pos-monitor`
+
+---
+
+## 🎯 Resumo Visual do Que Você Vai Fazer
+```
+Code (aba)
+  ↓
+Add file → Create new file
+  ↓
+Digite: .github/workflows/monitor.yml
+  ↓
+Cole o conteúdo (código YAML acima)
+  ↓
+Commit new file
+  ↓
+Volte para Actions
+  ↓
+Agora deve aparecer "Monitor Pós-Graduação EAD"!
