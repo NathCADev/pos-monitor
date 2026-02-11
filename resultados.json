@@ -1,0 +1,36 @@
+{
+  "ultima_atualizacao": "2026-02-11T08:15:00",
+  "total_oportunidades": 3,
+  "oportunidades": [
+    {
+      "titulo": "Especialização em Desenvolvimento de Sistemas Web",
+      "url": "https://portal.ifsuldeminas.edu.br/editais/123",
+      "instituto": "IFSULDEMINAS",
+      "data_encontrado": "2026-02-11T08:15:00"
+    },
+    {
+      "titulo": "Pós-Graduação em Segurança da Informação",
+      "url": "https://ifrs.edu.br/editais/456",
+      "instituto": "IFRS",
+      "data_encontrado": "2026-02-08T14:30:00"
+    },
+    {
+      "titulo": "Especialização em Ciência de Dados e Inteligência Artificial",
+      "url": "https://www.ifsp.edu.br/editais/789",
+      "instituto": "IFSP",
+      "data_encontrado": "2026-02-05T10:00:00"
+    }
+  ],
+  "institutos_unicos": [
+    "IFSULDEMINAS",
+    "IFRS",
+    "IFSP"
+  ],
+  "estatisticas": {
+    "por_instituto": {
+      "IFSULDEMINAS": 1,
+      "IFRS": 1,
+      "IFSP": 1
+    }
+  }
+}

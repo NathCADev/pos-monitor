@@ -1,0 +1,11 @@
+# Dependências do projeto
+# Equivalente ao packages.config em C# / NuGet
+
+# Biblioteca para fazer requisições HTTP
+requests==2.31.0
+
+# Biblioteca para fazer parsing de HTML (web scraping)
+beautifulsoup4==4.12.3
+
+# Parser HTML que o BeautifulSoup usa
+lxml==5.1.0
