@@ -1,9 +1,90 @@
 {
-  "ultima_atualizacao": "2026-02-11T00:00:00",
-  "total_oportunidades": 0,
-  "oportunidades": [],
-  "institutos_unicos": [],
+  "ultima_atualizacao": "2026-02-11T18:07:34.393291",
+  "total_oportunidades": 11,
+  "oportunidades": [
+    {
+      "titulo": "Cursos\t\t\t\n\n\t\t\t\tDepartamento de Engenharia Elétrica recebe inscrições para especialização em fontes renováveis de energia\t\t\t\n\n\n\n\t\t\t\t\t01 de dezembro a 27 de fevereiro",
+      "url": "https://www.ufmg.br/comunicacao/eventos/cursos/departamento-de-engenharia-eletrica-recebe-inscricoes-para-especializacao-em-fontes-renovaveis-de-energia/",
+      "instituto": "UFMG",
+      "data_encontrado": "2026-02-11T18:07:24.099579"
+    },
+    {
+      "titulo": "Pós-graduação\n[Fortaleza]  Especialização em Turismo Sustentável\n\n\nschedule Carga horária:\n520 h\n\n\ndate_range Duração:\n18 meses",
+      "url": "https://ifce.edu.br/cursos/fortaleza-especializacao-turismo-sustentavel/",
+      "instituto": "IFCE",
+      "data_encontrado": "2026-02-11T18:07:06.011290"
+    },
+    {
+      "titulo": "Publicação resgata trajetória da pesquisa, pós-graduação e inovação do IF Goiano",
+      "url": "https://www.ifgoiano.edu.br/home/index.php/ultimas-noticias/29718-publicacao-resgata-trajetoria-da-pesquisa-pos-graduacao-e-inovacao-do-if-goiano.html",
+      "instituto": "IFGOIANO",
+      "data_encontrado": "2026-02-11T18:06:59.785915"
+    },
+    {
+      "titulo": "Seleções anteriores - Especialização",
+      "url": "https://www.ifgoiano.edu.br/home/index.php/selecoes-anteriores-especializacao.html",
+      "instituto": "IFGOIANO",
+      "data_encontrado": "2026-02-11T18:06:59.785287"
+    },
+    {
+      "titulo": "Especialização",
+      "url": "https://www.ifgoiano.edu.br/home/index.php/especializacao-inst.html",
+      "instituto": "IFGOIANO",
+      "data_encontrado": "2026-02-11T18:06:59.785236"
+    },
+    {
+      "titulo": "PDEV - Campus Capivari IFSP abre 50 vagas para Pós-Graduação 100% EAD e gratuita em Desenvolvimento Web e Mobile",
+      "url": "https://cpv.ifsp.edu.br/component/content/article/17-ultimas-noticias/6433-pdev-campus-capivari-ifsp-abre-50-vagas-para-pos-graduacao-100-ead-e-gratuita-em-desenvolvimento-web-e-mobile-com-inscricoes-ate-o-dia-08-de-fevereiro-de-2026",
+      "instituto": "IFSP",
+      "data_encontrado": "2026-02-11T18:06:54.539396"
+    },
+    {
+      "titulo": "Educação a Distância",
+      "url": "http://ead.ifsul.edu.br/",
+      "instituto": "IFSUL",
+      "data_encontrado": "2026-02-11T18:06:51.248070"
+    },
+    {
+      "titulo": "EDITAL DE SELEÇÃO DE BOLSISTAS PARA O PROJETO ACESSIBILIDADE DIGITAL E JUSTIÇA SOCIAL",
+      "url": "https://ifrs.edu.br/editais/edital-de-selecao-de-bolsistas-para-o-projeto-acessibilidade-digital-e-justica-social/",
+      "instituto": "IFRS",
+      "data_encontrado": "2026-02-11T18:06:48.747572"
+    },
+    {
+      "titulo": "Edital Proex nº10- Seleção Simplificada de Cursistas para o curso de “Aperfeiçoamento em Educação para as relações étnico-raciais e educação escolar quilombola”",
+      "url": "https://ifrs.edu.br/editais/edital-proex-no10-selecao-simplificada-de-cursistas-para-o-curso-de-aperfeicoamento-em-educacao-para-as-relacoes-etnico-raciais-e-educacao-escolar-quilombola/",
+      "instituto": "IFRS",
+      "data_encontrado": "2026-02-11T18:06:48.744439"
+    },
+    {
+      "titulo": "Cursos EaD e Disciplinas Semipresenciais",
+      "url": "https://ifrs.edu.br/ensino/ead/cursos-ead-disciplinas-semipresenciais/",
+      "instituto": "IFRS",
+      "data_encontrado": "2026-02-11T18:06:48.733113"
+    },
+    {
+      "titulo": "Educação a Distância (EaD)",
+      "url": "https://ifrs.edu.br/ensino/ead/",
+      "instituto": "IFRS",
+      "data_encontrado": "2026-02-11T18:06:48.733053"
+    }
+  ],
+  "institutos_unicos": [
+    "IFGOIANO",
+    "IFSUL",
+    "IFSP",
+    "IFRS",
+    "UFMG",
+    "IFCE"
+  ],
   "estatisticas": {
-    "por_instituto": {}
+    "por_instituto": {
+      "UFMG": 1,
+      "IFCE": 1,
+      "IFGOIANO": 3,
+      "IFSP": 1,
+      "IFSUL": 1,
+      "IFRS": 4
+    }
   }
 }
