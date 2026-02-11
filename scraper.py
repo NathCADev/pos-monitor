@@ -276,30 +276,84 @@ class PosGraduacaoMonitor:
         - Desenvolvimento Mobile (apps iOS/Android)
         - Cybersegurança / Segurança da Informação
         - Cloud / DevOps / Infraestrutura
+        
+        IMPORTANTE: Usa lista de exclusões para evitar falsos positivos
         """
+        
+        # LISTA DE EXCLUSÕES - Áreas que NÃO são TI
+        areas_excluidas = [
+            # Outras engenharias
+            'engenharia elétrica', 'engenharia eletrica',
+            'engenharia civil',
+            'engenharia mecânica', 'engenharia mecanica',
+            'engenharia química', 'engenharia quimica',
+            'engenharia de produção', 'engenharia de producao',
+            'engenharia ambiental',
+            'engenharia de alimentos',
+            
+            # Educação e áreas humanas
+            'educação', 'educacao', 'pedagogia', 'ensino',
+            'educacional', 'escolar',
+            'relações étnico', 'relacoes etnico',
+            'quilombola', 'indígena', 'indigena',
+            
+            # Outras áreas
+            'enfermagem', 'medicina', 'saúde', 'saude',
+            'direito', 'jurídico', 'juridico',
+            'administração', 'administracao', 'gestão pública', 'gestao publica',
+            'contabilidade', 'finanças', 'financas',
+            'agricultura', 'agronomia', 'veterinária', 'veterinaria',
+            
+            # Energia (não é TI)
+            'energia elétrica', 'energia eletrica',
+            'fontes renováveis', 'fontes renovaveis',
+            'energia solar', 'energia eólica', 'energia eolica',
+            
+            # Outros
+            'turismo', 'hotelaria',
+            'arquitetura', 'urbanismo'
+        ]
+        
+        # Verifica se contém área excluída
+        if any(termo in texto for termo in areas_excluidas):
+            return False
+        
+        # Termos ESPECÍFICOS de TI - removidos termos muito genéricos
         termos_tech = [
             # IA, ML e Ciência de Dados
             'inteligência artificial', 'inteligencia artificial',
-            'ia', 'machine learning', 'aprendizado de máquina', 'aprendizado de maquina',
-            'deep learning', 'redes neurais', 'neural',
+            'machine learning', 'aprendizado de máquina', 'aprendizado de maquina',
+            'deep learning', 'redes neurais', 'neural network',
             'data science', 'ciência de dados', 'ciencia de dados',
             'big data', 'analytics', 'análise de dados', 'analise de dados',
             'mineração de dados', 'mineracao de dados',
+            'cientista de dados',
             
             # Desenvolvimento Web
             'desenvolvimento web', 'dev web', 'web development',
+            'programação web', 'programacao web',
             'front-end', 'frontend', 'back-end', 'backend',
             'full-stack', 'fullstack',
-            'javascript', 'react', 'angular', 'vue',
+            'javascript', 'typescript', 'react', 'angular', 'vue',
             'node.js', 'nodejs', 'python web', 'django', 'flask',
             'php', 'laravel', 'wordpress',
-            'html', 'css', 'web design',
+            'html5', 'css3', 'web design',
+            'desenvolvimento de sites', 'desenvolvimento de aplicações web', 'desenvolvimento de aplicacoes web',
             
             # Desenvolvimento Mobile
             'desenvolvimento mobile', 'dev mobile', 'mobile development',
-            'aplicativos móveis', 'aplicativos moveis', 'apps',
-            'android', 'ios', 'flutter', 'react native',
-            'kotlin', 'swift', 'mobile',
+            'aplicativos móveis', 'aplicativos moveis',
+            'android development', 'ios development',
+            'flutter', 'react native',
+            'kotlin', 'swift', 'mobile app',
+            
+            # Desenvolvimento de Software (específico)
+            'desenvolvimento de software',
+            'engenharia de software',  # Específico, não confunde com outras engenharias
+            'desenvolvimento de aplicações', 'desenvolvimento de aplicacoes',
+            'desenvolvimento de apps',
+            'programação', 'programacao', 'programador',
+            'análise e desenvolvimento de sistemas', 'analise e desenvolvimento de sistemas',
             
             # Cybersegurança
             'cibersegurança', 'ciberseguranca', 'cybersecurity',
@@ -308,22 +362,47 @@ class PosGraduacaoMonitor:
             'ethical hacking', 'hacking ético', 'hacking etico',
             'pentest', 'penetration test', 'teste de invasão', 'teste de invasao',
             'forense digital', 'perícia digital', 'pericia digital',
-            'lgpd', 'privacidade', 'proteção de dados', 'protecao de dados',
+            'lgpd', 'proteção de dados', 'protecao de dados',
+            'segurança de redes', 'seguranca de redes',
             
             # Cloud e DevOps
             'cloud computing', 'computação em nuvem', 'computacao em nuvem',
-            'aws', 'azure', 'google cloud', 'gcp',
+            'aws', 'amazon web services', 'azure', 'google cloud', 'gcp',
             'devops', 'sre', 'site reliability',
-            'kubernetes', 'docker', 'container', 'containerização', 'containerizacao',
+            'kubernetes', 'docker', 'container',
             'ci/cd', 'integração contínua', 'integracao continua',
-            'infraestrutura como código', 'infraestrutura como codigo', 'iac',
+            'infraestrutura como código', 'infraestrutura como codigo',
             'terraform', 'ansible',
             
-            # Termos Gerais de TI (mais específicos)
-            'desenvolvimento de sistemas', 'engenharia de software',
-            'programação', 'programacao', 'coding', 'software',
+            # Infraestrutura e Redes (TI específico)
+            'infraestrutura de ti', 'infraestrutura de tecnologia',
+            'redes de computadores', 'administração de redes', 'administracao de redes',
+            'servidor', 'servidores', 'datacenter',
+            
+            # Banco de Dados
+            'banco de dados', 'database',
+            'sql', 'mysql', 'postgresql', 'mongodb',
+            'administração de banco de dados', 'administracao de banco de dados',
+            'dba', 'modelagem de dados',
+            
+            # Sistemas e TI (bem específicos)
             'sistemas de informação', 'sistemas de informacao',
-            'tecnologia da informação', 'tecnologia da informacao'
+            'tecnologia da informação', 'tecnologia da informacao',
+            'ciência da computação', 'ciencia da computacao',
+            'análise de sistemas', 'analise de sistemas',
+            'administração de sistemas', 'administracao de sistemas',
+            
+            # Tecnologias específicas
+            'java', 'python programming', 'c#', 'c++',
+            '.net', 'dotnet',
+            'ruby on rails', 'go lang', 'rust programming',
+            
+            # Outras áreas de TI
+            'games', 'desenvolvimento de jogos',
+            'realidade virtual', 'realidade aumentada',
+            'iot', 'internet das coisas', 'internet of things',
+            'blockchain', 'criptomoedas',
+            'ui/ux', 'design de interfaces', 'experiência do usuário', 'experiencia do usuario'
         ]
         
         return any(termo in texto for termo in termos_tech)
