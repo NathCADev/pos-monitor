@@ -1,19 +1,7 @@
 {
-  "ultima_atualizacao": "2026-02-11T18:16:14.005393",
-  "total_oportunidades": 11,
+  "ultima_atualizacao": "2026-02-11T18:19:17.336411",
+  "total_oportunidades": 8,
   "oportunidades": [
-    {
-      "titulo": "Cursos\t\t\t\n\n\t\t\t\tDepartamento de Engenharia Elétrica recebe inscrições para especialização em fontes renováveis de energia\t\t\t\n\n\n\n\t\t\t\t\t01 de dezembro a 27 de fevereiro",
-      "url": "https://www.ufmg.br/comunicacao/eventos/cursos/departamento-de-engenharia-eletrica-recebe-inscricoes-para-especializacao-em-fontes-renovaveis-de-energia/",
-      "instituto": "UFMG",
-      "data_encontrado": "2026-02-11T18:07:24.099579"
-    },
-    {
-      "titulo": "Pós-graduação\n[Fortaleza]  Especialização em Turismo Sustentável\n\n\nschedule Carga horária:\n520 h\n\n\ndate_range Duração:\n18 meses",
-      "url": "https://ifce.edu.br/cursos/fortaleza-especializacao-turismo-sustentavel/",
-      "instituto": "IFCE",
-      "data_encontrado": "2026-02-11T18:07:06.011290"
-    },
     {
       "titulo": "Publicação resgata trajetória da pesquisa, pós-graduação e inovação do IF Goiano",
       "url": "https://www.ifgoiano.edu.br/home/index.php/ultimas-noticias/29718-publicacao-resgata-trajetoria-da-pesquisa-pos-graduacao-e-inovacao-do-if-goiano.html",
@@ -51,12 +39,6 @@
       "data_encontrado": "2026-02-11T18:06:48.747572"
     },
     {
-      "titulo": "Edital Proex nº10- Seleção Simplificada de Cursistas para o curso de “Aperfeiçoamento em Educação para as relações étnico-raciais e educação escolar quilombola”",
-      "url": "https://ifrs.edu.br/editais/edital-proex-no10-selecao-simplificada-de-cursistas-para-o-curso-de-aperfeicoamento-em-educacao-para-as-relacoes-etnico-raciais-e-educacao-escolar-quilombola/",
-      "instituto": "IFRS",
-      "data_encontrado": "2026-02-11T18:06:48.744439"
-    },
-    {
       "titulo": "Cursos EaD e Disciplinas Semipresenciais",
       "url": "https://ifrs.edu.br/ensino/ead/cursos-ead-disciplinas-semipresenciais/",
       "instituto": "IFRS",
@@ -70,21 +52,17 @@
     }
   ],
   "institutos_unicos": [
-    "UFMG",
-    "IFGOIANO",
-    "IFCE",
     "IFRS",
     "IFSUL",
+    "IFGOIANO",
     "IFSP"
   ],
   "estatisticas": {
     "por_instituto": {
-      "UFMG": 1,
-      "IFCE": 1,
       "IFGOIANO": 3,
       "IFSP": 1,
       "IFSUL": 1,
-      "IFRS": 4
+      "IFRS": 3
     }
   }
 }
