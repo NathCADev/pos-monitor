@@ -28,7 +28,7 @@ class PosGraduacaoMonitor:
         
         # Configuração: buscar editais dos últimos X meses
         # Ajuste conforme necessário (6, 12, 18, 24 meses)
-        self.meses_retroativos = 12
+        self.meses_retroativos = 1
     
     def carregar_sites(self):
         """
