@@ -18,7 +18,6 @@ import re
 class PosGraduacaoMonitor:
     """
     Classe principal para monitorar sites de pós-graduação
-    Equivalente a uma classe C# que você já conhece!
     """
     
     def __init__(self):
@@ -29,10 +28,33 @@ class PosGraduacaoMonitor:
     
     def carregar_sites(self):
         """
-        Carrega a lista de sites para monitorar
-        Você pode expandir essa lista com mais institutos
+        Carrega a lista de TODOS os sites para monitorar
+        Organizado por região para facilitar manutenção
         """
         return [
+            # ========== REGIÃO SUL ==========
+            {
+                'nome': 'IFRS',
+                'url': 'https://ifrs.edu.br/editais/',
+                'palavras_chave': ['pós-graduação', 'pos-graduacao', 'especialização', 'especializacao', 'ead', 'distância', 'seleção']
+            },
+            {
+                'nome': 'IFSC',
+                'url': 'https://www.ifsc.edu.br/editais',
+                'palavras_chave': ['pós-graduação', 'pos-graduacao', 'especialização', 'especializacao', 'ead', 'distância']
+            },
+            {
+                'nome': 'IFPR',
+                'url': 'https://reitoria.ifpr.edu.br/menu-de-apoio/editais/',
+                'palavras_chave': ['pós-graduação', 'pos-graduacao', 'especialização', 'ead', 'distância']
+            },
+            {
+                'nome': 'IFSUL',
+                'url': 'http://www.ifsul.edu.br/editais',
+                'palavras_chave': ['pós-graduação', 'especialização', 'ead', 'distância']
+            },
+            
+            # ========== REGIÃO SUDESTE ==========
             {
                 'nome': 'IFSULDEMINAS',
                 'url': 'https://portal.ifsuldeminas.edu.br/index.php/editais',
@@ -44,16 +66,93 @@ class PosGraduacaoMonitor:
                 'palavras_chave': ['pós-graduação', 'pos-graduacao', 'especialização', 'ead']
             },
             {
-                'nome': 'IFRS',
-                'url': 'https://ifrs.edu.br/editais/',
+                'nome': 'IFMG',
+                'url': 'https://www.ifmg.edu.br/portal/ensino/pos-graduacao',
                 'palavras_chave': ['pós-graduação', 'especialização', 'ead', 'seleção']
+            },
+            {
+                'nome': 'IFRJ',
+                'url': 'https://portal.ifrj.edu.br/editais',
+                'palavras_chave': ['pós-graduação', 'especialização', 'ead', 'distância']
+            },
+            {
+                'nome': 'IFES',
+                'url': 'https://www.ifes.edu.br/editais',
+                'palavras_chave': ['pós-graduação', 'especialização', 'ead']
+            },
+            
+            # ========== REGIÃO CENTRO-OESTE ==========
+            {
+                'nome': 'IFB',
+                'url': 'https://www.ifb.edu.br/editais',
+                'palavras_chave': ['pós-graduação', 'especialização', 'ead', 'distância']
+            },
+            {
+                'nome': 'IFGOIANO',
+                'url': 'https://www.ifgoiano.edu.br/home/index.php/editais.html',
+                'palavras_chave': ['pós-graduação', 'especialização', 'ead']
+            },
+            {
+                'nome': 'IFMT',
+                'url': 'http://www.ifmt.edu.br/editais',
+                'palavras_chave': ['pós-graduação', 'especialização', 'ead', 'distância']
+            },
+            
+            # ========== REGIÃO NORDESTE ==========
+            {
+                'nome': 'IFBA',
+                'url': 'https://portal.ifba.edu.br/editais/',
+                'palavras_chave': ['pós-graduação', 'especialização', 'ead', 'distância']
+            },
+            {
+                'nome': 'IFCE',
+                'url': 'https://ifce.edu.br/editais',
+                'palavras_chave': ['pós-graduação', 'especialização', 'ead']
+            },
+            {
+                'nome': 'IFPB',
+                'url': 'https://www.ifpb.edu.br/editais',
+                'palavras_chave': ['pós-graduação', 'especialização', 'ead', 'distância']
+            },
+            {
+                'nome': 'IFPE',
+                'url': 'https://www.ifpe.edu.br/editais',
+                'palavras_chave': ['pós-graduação', 'especialização', 'ead']
+            },
+            
+            # ========== REGIÃO NORTE ==========
+            {
+                'nome': 'IFPA',
+                'url': 'https://ifpa.edu.br/editais',
+                'palavras_chave': ['pós-graduação', 'especialização', 'ead', 'distância']
+            },
+            {
+                'nome': 'IFAM',
+                'url': 'http://www2.ifam.edu.br/editais',
+                'palavras_chave': ['pós-graduação', 'especialização', 'ead']
+            },
+            
+            # ========== UNIVERSIDADES FEDERAIS ==========
+            {
+                'nome': 'UFSCAR',
+                'url': 'https://www.ufscar.br/editais',
+                'palavras_chave': ['pós-graduação', 'especialização', 'ead', 'distância']
+            },
+            {
+                'nome': 'UFMG',
+                'url': 'https://ufmg.br/editais',
+                'palavras_chave': ['pós-graduação', 'especialização', 'ead']
+            },
+            {
+                'nome': 'UFRGS',
+                'url': 'https://www.ufrgs.br/ufrgs/editais',
+                'palavras_chave': ['pós-graduação', 'especialização', 'ead', 'distância']
             }
         ]
     
     def carregar_dados_historicos(self):
         """
         Carrega os dados já processados anteriormente
-        Similar a ler de um arquivo JSON ou banco de dados
         """
         try:
             if os.path.exists('historico.json'):
@@ -75,7 +174,6 @@ class PosGraduacaoMonitor:
     def gerar_json_frontend(self):
         """
         Gera arquivo JSON otimizado para o frontend consumir
-        Inclui apenas os dados necessários para exibição
         """
         try:
             # Ordena por data (mais recente primeiro)
@@ -116,32 +214,22 @@ class PosGraduacaoMonitor:
     def fazer_scraping(self, site):
         """
         Faz o scraping de um site específico
-        
-        Web Scraping = "raspar" (extrair) dados de uma página web
-        É como você abrir o DevTools e pegar informações da página, mas automatizado
         """
         try:
             print(f"\n🔍 Analisando: {site['nome']}")
             
-            # Faz a requisição HTTP (GET) - como quando você acessa um site no navegador
             headers = {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
             }
             response = requests.get(site['url'], headers=headers, timeout=10)
             
-            # Verifica se deu certo (status 200 = OK)
             if response.status_code != 200:
                 print(f"⚠️ Erro ao acessar {site['nome']}: Status {response.status_code}")
                 return []
             
-            # BeautifulSoup = biblioteca que "entende" HTML
-            # É como ter um parser de HTML em C#
             soup = BeautifulSoup(response.content, 'html.parser')
             
-            # Procura por links e títulos
             editais_encontrados = []
-            
-            # Procura por links <a> que contenham as palavras-chave
             links = soup.find_all('a', href=True)
             
             for link in links:
@@ -172,15 +260,60 @@ class PosGraduacaoMonitor:
     
     def e_area_tecnologia(self, texto):
         """
-        Verifica se o edital é da área de tecnologia
-        Adicione mais termos conforme necessário
+        Verifica se o edital é das áreas de interesse:
+        - Inteligência Artificial / Machine Learning / Data Science
+        - Desenvolvimento Web (front-end, back-end, full-stack)
+        - Desenvolvimento Mobile (apps iOS/Android)
+        - Cybersegurança / Segurança da Informação
+        - Cloud / DevOps / Infraestrutura
         """
         termos_tech = [
-            'tecnologia', 'ti', 'computação', 'computacao', 'informática', 'informatica',
-            'sistemas', 'software', 'desenvolvimento', 'programação', 'programacao',
-            'dados', 'redes', 'segurança', 'cibersegurança', 'ciber', 'web',
-            'inteligência artificial', 'ia', 'machine learning', 'cloud',
-            'devops', 'engenharia de software', 'análise de sistemas', 'análise e desenvolvimento'
+            # IA, ML e Ciência de Dados
+            'inteligência artificial', 'inteligencia artificial',
+            'ia', 'machine learning', 'aprendizado de máquina', 'aprendizado de maquina',
+            'deep learning', 'redes neurais', 'neural',
+            'data science', 'ciência de dados', 'ciencia de dados',
+            'big data', 'analytics', 'análise de dados', 'analise de dados',
+            'mineração de dados', 'mineracao de dados',
+            
+            # Desenvolvimento Web
+            'desenvolvimento web', 'dev web', 'web development',
+            'front-end', 'frontend', 'back-end', 'backend',
+            'full-stack', 'fullstack',
+            'javascript', 'react', 'angular', 'vue',
+            'node.js', 'nodejs', 'python web', 'django', 'flask',
+            'php', 'laravel', 'wordpress',
+            'html', 'css', 'web design',
+            
+            # Desenvolvimento Mobile
+            'desenvolvimento mobile', 'dev mobile', 'mobile development',
+            'aplicativos móveis', 'aplicativos moveis', 'apps',
+            'android', 'ios', 'flutter', 'react native',
+            'kotlin', 'swift', 'mobile',
+            
+            # Cybersegurança
+            'cibersegurança', 'ciberseguranca', 'cybersecurity',
+            'segurança da informação', 'seguranca da informacao',
+            'segurança cibernética', 'seguranca cibernetica',
+            'ethical hacking', 'hacking ético', 'hacking etico',
+            'pentest', 'penetration test', 'teste de invasão', 'teste de invasao',
+            'forense digital', 'perícia digital', 'pericia digital',
+            'lgpd', 'privacidade', 'proteção de dados', 'protecao de dados',
+            
+            # Cloud e DevOps
+            'cloud computing', 'computação em nuvem', 'computacao em nuvem',
+            'aws', 'azure', 'google cloud', 'gcp',
+            'devops', 'sre', 'site reliability',
+            'kubernetes', 'docker', 'container', 'containerização', 'containerizacao',
+            'ci/cd', 'integração contínua', 'integracao continua',
+            'infraestrutura como código', 'infraestrutura como codigo', 'iac',
+            'terraform', 'ansible',
+            
+            # Termos Gerais de TI (mais específicos)
+            'desenvolvimento de sistemas', 'engenharia de software',
+            'programação', 'programacao', 'coding', 'software',
+            'sistemas de informação', 'sistemas de informacao',
+            'tecnologia da informação', 'tecnologia da informacao'
         ]
         
         return any(termo in texto for termo in termos_tech)
@@ -188,12 +321,10 @@ class PosGraduacaoMonitor:
     def normalizar_url(self, href, url_base):
         """
         Transforma URLs relativas em URLs absolutas
-        Ex: /edital/123 -> https://site.com/edital/123
         """
         if href.startswith('http'):
             return href
         elif href.startswith('/'):
-            # Pega apenas o domínio da URL base
             from urllib.parse import urlparse
             parsed = urlparse(url_base)
             return f"{parsed.scheme}://{parsed.netloc}{href}"
@@ -210,13 +341,11 @@ class PosGraduacaoMonitor:
     def enviar_email(self):
         """
         Envia email com as novas oportunidades encontradas
-        Usa variáveis de ambiente para segurança (definidas no GitHub Actions)
         """
         if not self.novas_oportunidades:
             print("\n📭 Nenhuma nova oportunidade encontrada.")
             return
         
-        # Pega credenciais das variáveis de ambiente (seguro!)
         email_remetente = os.environ.get('EMAIL_REMETENTE')
         email_senha = os.environ.get('EMAIL_SENHA')
         email_destinatario = os.environ.get('EMAIL_DESTINATARIO')
@@ -228,21 +357,17 @@ class PosGraduacaoMonitor:
                 print(f"  - {oport['titulo']} ({oport['instituto']})")
             return
         
-        # Monta o conteúdo do email
         html_content = self.montar_html_email()
         
-        # Configura a mensagem
         msg = MIMEMultipart('alternative')
         msg['Subject'] = f'🎓 {len(self.novas_oportunidades)} Nova(s) Pós-Graduação(ões) EAD Gratuita(s)!'
         msg['From'] = email_remetente
         msg['To'] = email_destinatario
         
-        # Adiciona o conteúdo HTML
         parte_html = MIMEText(html_content, 'html', 'utf-8')
         msg.attach(parte_html)
         
         try:
-            # Envia o email via SMTP do Gmail
             with smtplib.SMTP_SSL('smtp.gmail.com', 465) as servidor:
                 servidor.login(email_remetente, email_senha)
                 servidor.send_message(msg)
@@ -252,9 +377,6 @@ class PosGraduacaoMonitor:
             
         except Exception as e:
             print(f"\n❌ Erro ao enviar email: {e}")
-            print("💡 Verifique se:")
-            print("   - Você habilitou 'Senhas de app' no Google")
-            print("   - As credenciais estão corretas")
     
     def montar_html_email(self):
         """Cria um email HTML bonito com as oportunidades"""
@@ -313,6 +435,7 @@ class PosGraduacaoMonitor:
         """Método principal que executa todo o fluxo"""
         print("="*60)
         print("🚀 Iniciando monitoramento de Pós-Graduações EAD")
+        print(f"📊 Monitorando {len(self.sites)} institutos")
         print("="*60)
         
         # Faz scraping de cada site
@@ -336,7 +459,7 @@ class PosGraduacaoMonitor:
         print("✅ Monitoramento concluído!")
         print("="*60)
 
-# Ponto de entrada do script (como o Main em C#)
+# Ponto de entrada do script
 if __name__ == "__main__":
     monitor = PosGraduacaoMonitor()
     monitor.executar()
