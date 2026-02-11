@@ -11,7 +11,7 @@ import json
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 import re
 
@@ -25,6 +25,10 @@ class PosGraduacaoMonitor:
         self.sites = self.carregar_sites()
         self.dados_anteriores = self.carregar_dados_historicos()
         self.novas_oportunidades = []
+        
+        # Configuração: buscar editais dos últimos X meses
+        # Ajuste conforme necessário (6, 12, 18, 24 meses)
+        self.meses_retroativos = 12
     
     def carregar_sites(self):
         """
@@ -236,21 +240,27 @@ class PosGraduacaoMonitor:
                 texto = link.get_text().strip().lower()
                 href = link.get('href', '')
                 
+                # Pega contexto ao redor do link (para tentar extrair data)
+                parent = link.parent
+                contexto = parent.get_text() if parent else ''
+                
                 # Verifica se contém alguma palavra-chave
                 if any(palavra in texto for palavra in site['palavras_chave']):
                     # Verifica se é relacionado a tecnologia/TI
                     if self.e_area_tecnologia(texto):
-                        edital = {
-                            'titulo': link.get_text().strip(),
-                            'url': self.normalizar_url(href, site['url']),
-                            'instituto': site['nome'],
-                            'data_encontrado': datetime.now().isoformat()
-                        }
-                        
-                        # Verifica se é novo
-                        if not self.ja_existe(edital):
-                            editais_encontrados.append(edital)
-                            print(f"  ✨ NOVO: {edital['titulo'][:80]}...")
+                        # Verifica se é recente (filtro de data)
+                        if self.e_edital_recente(texto, contexto):
+                            edital = {
+                                'titulo': link.get_text().strip(),
+                                'url': self.normalizar_url(href, site['url']),
+                                'instituto': site['nome'],
+                                'data_encontrado': datetime.now().isoformat()
+                            }
+                            
+                            # Verifica se é novo
+                            if not self.ja_existe(edital):
+                                editais_encontrados.append(edital)
+                                print(f"  ✨ NOVO: {edital['titulo'][:80]}...")
             
             return editais_encontrados
             
@@ -317,6 +327,85 @@ class PosGraduacaoMonitor:
         ]
         
         return any(termo in texto for termo in termos_tech)
+    
+    def extrair_data_do_texto(self, texto):
+        """
+        Tenta extrair uma data do texto do link ou contexto
+        Retorna a data extraída ou None se não encontrar
+        
+        Formatos suportados:
+        - DD/MM/YYYY ou DD/MM/YY
+        - DD-MM-YYYY ou DD-MM-YY
+        - YYYY-MM-DD (ISO)
+        - Mês por extenso: "15 de janeiro de 2025"
+        """
+        # Padrões de data
+        padroes = [
+            # DD/MM/YYYY ou DD/MM/YY
+            r'\b(\d{1,2})[/\-](\d{1,2})[/\-](\d{2,4})\b',
+            # YYYY-MM-DD
+            r'\b(\d{4})[/\-](\d{1,2})[/\-](\d{1,2})\b',
+        ]
+        
+        for padrao in padroes:
+            match = re.search(padrao, texto)
+            if match:
+                try:
+                    grupos = match.groups()
+                    
+                    # Tenta diferentes formatos
+                    if len(grupos[0]) == 4:  # YYYY-MM-DD
+                        ano, mes, dia = int(grupos[0]), int(grupos[1]), int(grupos[2])
+                    else:  # DD/MM/YYYY
+                        dia, mes, ano = int(grupos[0]), int(grupos[1]), int(grupos[2])
+                    
+                    # Converte ano de 2 dígitos para 4
+                    if ano < 100:
+                        ano = 2000 + ano if ano < 50 else 1900 + ano
+                    
+                    # Valida a data
+                    if 1 <= mes <= 12 and 1 <= dia <= 31 and 2000 <= ano <= 2030:
+                        return datetime(ano, mes, dia)
+                except:
+                    continue
+        
+        # Tenta extrair apenas o ano (como último recurso)
+        match_ano = re.search(r'\b(20\d{2})\b', texto)
+        if match_ano:
+            try:
+                ano = int(match_ano.group(1))
+                # Assume que é do início do ano
+                return datetime(ano, 1, 1)
+            except:
+                pass
+        
+        return None
+    
+    def e_edital_recente(self, texto, contexto=''):
+        """
+        Verifica se o edital é recente (últimos X meses configurados)
+        
+        Estratégia:
+        1. Tenta extrair data do texto do link
+        2. Tenta extrair data do contexto ao redor
+        3. Se não encontrar data, considera como recente (assume que é novo)
+        """
+        data_limite = datetime.now() - timedelta(days=self.meses_retroativos * 30)
+        
+        # Tenta extrair data do texto do link
+        texto_completo = f"{texto} {contexto}".lower()
+        data_encontrada = self.extrair_data_do_texto(texto_completo)
+        
+        if data_encontrada:
+            # Se encontrou data, verifica se é recente
+            e_recente = data_encontrada >= data_limite
+            if not e_recente:
+                print(f"  ⏭️ Ignorado (muito antigo): {texto[:60]}... ({data_encontrada.strftime('%d/%m/%Y')})")
+            return e_recente
+        
+        # Se não encontrou data, assume que é recente
+        # (melhor pegar algo novo sem data do que perder oportunidade)
+        return True
     
     def normalizar_url(self, href, url_base):
         """
@@ -431,11 +520,47 @@ class PosGraduacaoMonitor:
         
         return html
     
+    def limpar_historico_antigo(self):
+        """
+        Remove editais antigos do histórico (além dos X meses configurados)
+        Útil para fazer limpeza inicial ou periódica
+        """
+        if not self.dados_anteriores['editais_encontrados']:
+            print("ℹ️ Histórico vazio, nada para limpar")
+            return
+        
+        data_limite = datetime.now() - timedelta(days=self.meses_retroativos * 30)
+        total_antes = len(self.dados_anteriores['editais_encontrados'])
+        
+        # Filtra apenas editais recentes
+        editais_recentes = []
+        for edital in self.dados_anteriores['editais_encontrados']:
+            try:
+                data_edital = datetime.fromisoformat(edital['data_encontrado'])
+                if data_edital >= data_limite:
+                    editais_recentes.append(edital)
+            except:
+                # Se não conseguir parsear a data, mantém o edital
+                editais_recentes.append(edital)
+        
+        self.dados_anteriores['editais_encontrados'] = editais_recentes
+        total_depois = len(editais_recentes)
+        removidos = total_antes - total_depois
+        
+        print(f"🧹 Limpeza de histórico:")
+        print(f"   Antes: {total_antes} editais")
+        print(f"   Depois: {total_depois} editais")
+        print(f"   Removidos: {removidos} editais antigos")
+        
+        if removidos > 0:
+            self.salvar_dados_historicos()
+    
     def executar(self):
         """Método principal que executa todo o fluxo"""
         print("="*60)
         print("🚀 Iniciando monitoramento de Pós-Graduações EAD")
         print(f"📊 Monitorando {len(self.sites)} institutos")
+        print(f"📅 Buscando editais dos últimos {self.meses_retroativos} meses")
         print("="*60)
         
         # Faz scraping de cada site
