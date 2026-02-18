@@ -131,6 +131,11 @@ class PosGraduacaoMonitor:
                 'palavras_chave': ['pós-graduação', 'especialização', 'ead', 'distância']
             },
             {
+                'nome': 'UNIFAP',
+                'url': 'https://www.unifap.br/editais-de-pos-graduacao/',
+                'palavras_chave': ['pós-graduação', 'especialização', 'ead', 'distância']
+            },
+            {
                 'nome': 'IFAM',
                 'url': 'http://www2.ifam.edu.br/editais',
                 'palavras_chave': ['pós-graduação', 'especialização', 'ead']
