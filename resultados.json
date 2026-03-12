@@ -1,5 +1,5 @@
 {
-  "ultima_atualizacao": "2026-03-09T11:30:55.148520",
+  "ultima_atualizacao": "2026-03-12T14:52:44.646755",
   "total_oportunidades": 9,
   "oportunidades": [
     {
@@ -58,11 +58,11 @@
     }
   ],
   "institutos_unicos": [
-    "IFRS",
-    "IFGOIANO",
-    "IFSUL",
     "IFSP",
-    "IFCE"
+    "IFCE",
+    "IFSUL",
+    "IFGOIANO",
+    "IFRS"
   ],
   "estatisticas": {
     "por_instituto": {
