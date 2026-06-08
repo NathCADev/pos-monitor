@@ -1,7 +1,13 @@
 {
-  "ultima_atualizacao": "2026-06-04T16:56:47.022555",
-  "total_oportunidades": 9,
+  "ultima_atualizacao": "2026-06-08T14:43:31.370798",
+  "total_oportunidades": 10,
   "oportunidades": [
+    {
+      "titulo": "Cursos\t\t\t\n\n\t\t\t\tAbertas inscrições para especialização EAD em ciência de dados\t\t\t\n\n\n\n\t\t\t\t\t04 de maio  a 12 de junho",
+      "url": "https://www.ufmg.br/comunicacao/eventos/cursos/abertas-inscricoes-para-especializacao-ead-em-ciencia-de-dados/",
+      "instituto": "UFMG",
+      "data_encontrado": "2026-06-08T14:43:20.756208"
+    },
     {
       "titulo": "Conscientização\nIFCE lança programação com foco nas mulheres\nA Comissão Gestora de Prevenção e Enfrentamento ao Assédio e à Discriminação (CGPEAD) reúne legislação, serviços e eventos sobre a temática\nHá 2 dias, 15 horas",
       "url": "https://ifce.edu.br/noticias/ifce-lanca-programacao-com-foco-nas-mulheres/",
@@ -59,13 +65,15 @@
   ],
   "institutos_unicos": [
     "IFSUL",
-    "IFCE",
-    "IFGOIANO",
+    "UFMG",
     "IFRS",
+    "IFGOIANO",
+    "IFCE",
     "IFSP"
   ],
   "estatisticas": {
     "por_instituto": {
+      "UFMG": 1,
       "IFCE": 1,
       "IFGOIANO": 3,
       "IFSP": 1,
