@@ -266,8 +266,8 @@ class PosGraduacaoMonitor:
                 parent = link.parent
                 contexto = parent.get_text() if parent else ''
                 
-                # Verifica se contém alguma palavra-chave
-                if any(palavra in texto for palavra in site['palavras_chave']):
+                # Verifica se contém alguma palavra-chave (palavra isolada, não substring)
+                if any(self._contem_termo(texto, palavra) for palavra in site['palavras_chave']):
                     # Verifica se é relacionado a tecnologia/TI
                     if self.e_area_tecnologia(texto):
                         # Verifica se é recente (filtro de data: retém até meses_arquivo)
@@ -338,8 +338,8 @@ class PosGraduacaoMonitor:
             'arquitetura', 'urbanismo'
         ]
         
-        # Verifica se contém área excluída
-        if any(termo in texto for termo in areas_excluidas):
+        # Verifica se contém área excluída (palavra isolada)
+        if any(self._contem_termo(texto, termo) for termo in areas_excluidas):
             return False
         
         # Termos ESPECÍFICOS de TI - removidos termos muito genéricos
@@ -429,8 +429,16 @@ class PosGraduacaoMonitor:
             'ui/ux', 'design de interfaces', 'experiência do usuário', 'experiencia do usuario'
         ]
         
-        return any(termo in texto for termo in termos_tech)
+        return any(self._contem_termo(texto, termo) for termo in termos_tech)
     
+    def _contem_termo(self, texto, termo):
+        """Verifica se o termo aparece como palavra/expressão isolada (não como parte de outra palavra).
+        Evita falsos positivos como 'ead' em 'sead' ou 'iot' em 'biblioteconomia'."""
+        try:
+            return re.search(r'(?<!\w)' + re.escape(termo) + r'(?!\w)', texto) is not None
+        except:
+            return termo in texto
+
     def _mes_para_numero(self, nome_mes):
         """Converte nome do mês em português para número"""
         mapa = {

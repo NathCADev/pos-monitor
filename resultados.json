@@ -1,5 +1,5 @@
 {
-  "ultima_atualizacao": "2026-10-07T21:19:30.639440",
+  "ultima_atualizacao": "2026-10-07T18:26:18.777426",
   "filtro_padrao_meses": 2,
   "filtro_extendido_meses": 6,
   "opcoes_periodo_meses": [
@@ -7,11 +7,23 @@
     4,
     6
   ],
-  "total_oportunidades": 0,
-  "total_extendido": 0,
-  "oportunidades": [],
-  "institutos_unicos": [],
+  "total_oportunidades": 1,
+  "total_extendido": 1,
+  "oportunidades": [
+    {
+      "titulo": "Especialização em Gestão da Informação Pública (EaD) publica edital para ingresso de servidores públicos",
+      "url": "https://www.ufrgs.br/sead/2026/04/28/especializacao-em-gestao-da-informacao-publica-ead-publica-edital-para-selecao-de-alunos-2/",
+      "instituto": "UFRGS",
+      "data_encontrado": "2026-10-07T18:26:18.671473",
+      "data_publicacao": null
+    }
+  ],
+  "institutos_unicos": [
+    "UFRGS"
+  ],
   "estatisticas": {
-    "por_instituto": {}
+    "por_instituto": {
+      "UFRGS": 1
+    }
   }
 }
