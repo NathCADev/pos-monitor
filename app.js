@@ -111,11 +111,12 @@ function renderStatusBar(data) {
   
   if (totalCountElement) {
     const padrao = data.filtro_padrao_meses || 2;
-    const ext = data.filtro_extendido_meses || 4;
+    const ext = data.filtro_extendido_meses || 6;
+    const atual = AppState.currentFilters.periodoMeses || padrao;
     const ativos = AppState.filteredData ? AppState.filteredData.length : data.total_oportunidades;
     const total = data.total_extendido ?? data.oportunidades.length;
-    totalCountElement.textContent = `${ativos} (2m) / ${total} (4m)`;
-    totalCountElement.title = `Exibindo últimos ${padrao} meses. Total retido: últimos ${ext} meses.`;
+    totalCountElement.textContent = `${ativos} (${atual}m) / ${total} (${ext}m)`;
+    totalCountElement.title = `Exibindo últimos ${atual} meses. Total retido: últimos ${ext} meses.`;
   }
 }
 
@@ -275,7 +276,7 @@ function applyFilters() {
   
   let filtered = AppState.data.oportunidades;
 
-  // Filtro por período (2m padrão / 4m estendido)
+  // Filtro por período (2m padrão, cicla 2→4→6)
   const meses = AppState.currentFilters.periodoMeses || 2;
   filtered = filtered.filter(oport => dentroDoPeriodo(oport, meses));
   
@@ -301,22 +302,33 @@ function applyFilters() {
   renderStatusBar(AppState.data);
 }
 
+function getOpcoesPeriodo() {
+  if (Array.isArray(AppState.data?.opcoes_periodo_meses) && AppState.data.opcoes_periodo_meses.length) {
+    return AppState.data.opcoes_periodo_meses;
+  }
+  const padrao = AppState.data?.filtro_padrao_meses || 2;
+  const ext = AppState.data?.filtro_extendido_meses || 6;
+  const set = [...new Set([padrao, 4, ext])].sort((a, b) => a - b);
+  return set;
+}
+
 function updateToggleButton() {
   const btn = document.getElementById('togglePeriodo');
   if (!btn || !AppState.data) return;
-  const padrao = AppState.data.filtro_padrao_meses || 2;
-  const ext = AppState.data.filtro_extendido_meses || 4;
-  const atual = AppState.currentFilters.periodoMeses || padrao;
-  btn.textContent = atual === padrao
-    ? `Ver últimos ${ext} meses`
-    : `Voltar para ${padrao} meses`;
+  const opcoes = getOpcoesPeriodo();
+  const atual = AppState.currentFilters.periodoMeses || opcoes[0];
+  const idx = opcoes.indexOf(atual);
+  const proximo = opcoes[(idx + 1) % opcoes.length];
+  btn.innerHTML = proximo === opcoes[0]
+    ? `Voltar para ${opcoes[0]} meses <i class="fa-solid fa-rotate-left"></i>`
+    : `Ver últimos ${proximo} meses <i class="fa-solid fa-arrow-right"></i>`;
 }
 
 function togglePeriodo() {
-  const padrao = AppState.data?.filtro_padrao_meses || 2;
-  const ext = AppState.data?.filtro_extendido_meses || 4;
-  AppState.currentFilters.periodoMeses =
-    (AppState.currentFilters.periodoMeses === ext) ? padrao : ext;
+  const opcoes = getOpcoesPeriodo();
+  const atual = AppState.currentFilters.periodoMeses || opcoes[0];
+  const idx = opcoes.indexOf(atual);
+  AppState.currentFilters.periodoMeses = opcoes[(idx + 1) % opcoes.length];
   applyFilters();
   updateToggleButton();
 }

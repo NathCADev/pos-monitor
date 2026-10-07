@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="#0f1419"/>
+  <rect x="2.5" y="2.5" width="59" height="59" rx="13.5" fill="none" stroke="#2d3643" stroke-width="1.5"/>
+  <!-- aba do capelo -->
+  <polygon points="32,12 6,22.5 32,33 58,22.5" fill="#3b8fd9"/>
+  <!-- base -->
+  <path d="M20 28.5 V37 c0 5.5 24 5.5 24 0 V28.5 L32 34.5 Z" fill="#e8eaed"/>
+  <!-- pingente -->
+  <line x1="52" y1="22.5" x2="52" y2="37" stroke="#3b8fd9" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="52" cy="40" r="3.5" fill="#3b8fd9"/>
+</svg>

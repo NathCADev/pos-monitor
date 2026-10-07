@@ -27,9 +27,9 @@ class PosGraduacaoMonitor:
         self.novas_oportunidades = []
         
         # Configuração: buscar editais dos últimos X meses
-        # Exibição padrão: 2 meses. Arquivo retido: 4 meses (botão "ver mais")
+        # Exibição padrão: 2 meses. Arquivo retido: 6 meses (botão cicla 2→4→6)
         self.meses_retroativos = 2
-        self.meses_arquivo = 4
+        self.meses_arquivo = 6
     
     def carregar_sites(self):
         """
@@ -174,8 +174,8 @@ class PosGraduacaoMonitor:
     def gerar_json_frontend(self):
         """
         Gera arquivo JSON otimizado para o frontend consumir.
-        Retém até meses_arquivo (4). Frontend exibe meses_retroativos (2)
-        por padrão, com botão para estender.
+        Retém até meses_arquivo (6). Frontend exibe meses_retroativos (2)
+        por padrão, com botão que cicla 2→4→6.
         """
         try:
             agora = datetime.now()
@@ -191,7 +191,7 @@ class PosGraduacaoMonitor:
             editais_padrao = [e for e in editais_arquivo
                                if dentro_limite(e, limite_padrao)]
 
-            # Ordena por data (mais recente primeiro) - usa lista de arquivo (4m)
+            # Ordena por data (mais recente primeiro) - usa lista de arquivo (6m)
             editais_ordenados = sorted(
                 editais_arquivo,
                 key=lambda x: (self._data_referencia_edital(x) or datetime.min).isoformat(),
@@ -210,6 +210,7 @@ class PosGraduacaoMonitor:
                 'ultima_atualizacao': agora.isoformat(),
                 'filtro_padrao_meses': self.meses_retroativos,
                 'filtro_extendido_meses': self.meses_arquivo,
+                'opcoes_periodo_meses': [2, 4, 6],
                 'total_oportunidades': len(editais_padrao),
                 'total_extendido': len(editais_arquivo),
                 'oportunidades': editais_ordenados,
@@ -695,7 +696,7 @@ class PosGraduacaoMonitor:
     def limpar_historico_antigo(self):
         """
         Remove editais antigos do histórico (além de meses_arquivo)
-        Mantém até 4 meses para permitir o botão "ver mais"
+        Mantém até 6 meses para permitir o botão 2→4→6
         """
         if not self.dados_anteriores['editais_encontrados']:
             print("ℹ️ Histórico vazio, nada para limpar")
@@ -733,7 +734,7 @@ class PosGraduacaoMonitor:
         print(f"📅 Exibição padrão: últimos {self.meses_retroativos} meses | Arquivo: {self.meses_arquivo} meses")
         print("="*60)
 
-        # Limpa itens além do arquivo (4m) antes de processar
+        # Limpa itens além do arquivo (6m) antes de processar
         self.limpar_historico_antigo()
 
         # Faz scraping de cada site
