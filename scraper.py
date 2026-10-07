@@ -27,8 +27,9 @@ class PosGraduacaoMonitor:
         self.novas_oportunidades = []
         
         # Configuração: buscar editais dos últimos X meses
-        # Ajuste conforme necessário (6, 12, 18, 24 meses)
-        self.meses_retroativos = 1
+        # Exibição padrão: 2 meses. Arquivo retido: 4 meses (botão "ver mais")
+        self.meses_retroativos = 2
+        self.meses_arquivo = 4
     
     def carregar_sites(self):
         """
@@ -71,13 +72,8 @@ class PosGraduacaoMonitor:
             },
             {
                 'nome': 'IFMG',
-                'url': 'https://www.ifmg.edu.br/portal/ensino/pos-graduacao',
+                'url': 'https://www.ifmg.edu.br/portal/pesquisa-e-pos-graduacao/editais-abertos/editais-abertos',
                 'palavras_chave': ['pós-graduação', 'especialização', 'ead', 'seleção']
-            },
-            {
-                'nome': 'IFRJ',
-                'url': 'https://portal.ifrj.edu.br/editais',
-                'palavras_chave': ['pós-graduação', 'especialização', 'ead', 'distância']
             },
             {
                 'nome': 'IFES',
@@ -88,7 +84,7 @@ class PosGraduacaoMonitor:
             # ========== REGIÃO CENTRO-OESTE ==========
             {
                 'nome': 'IFB',
-                'url': 'https://www.ifb.edu.br/editais',
+                'url': 'https://www.ifb.edu.br/reitori/39292-ensino-editais',
                 'palavras_chave': ['pós-graduação', 'especialização', 'ead', 'distância']
             },
             {
@@ -98,14 +94,14 @@ class PosGraduacaoMonitor:
             },
             {
                 'nome': 'IFMT',
-                'url': 'http://www.ifmt.edu.br/editais',
+                'url': 'https://ifmt.edu.br/painel-de-editais/',
                 'palavras_chave': ['pós-graduação', 'especialização', 'ead', 'distância']
             },
             
             # ========== REGIÃO NORDESTE ==========
             {
                 'nome': 'IFBA',
-                'url': 'https://portal.ifba.edu.br/editais/',
+                'url': 'https://portal.ifba.edu.br/@@search?Subject%3Alist=Not%C3%ADcias',
                 'palavras_chave': ['pós-graduação', 'especialização', 'ead', 'distância']
             },
             {
@@ -143,18 +139,13 @@ class PosGraduacaoMonitor:
             
             # ========== UNIVERSIDADES FEDERAIS ==========
             {
-                'nome': 'UFSCAR',
-                'url': 'https://www.ufscar.br/editais',
-                'palavras_chave': ['pós-graduação', 'especialização', 'ead', 'distância']
-            },
-            {
                 'nome': 'UFMG',
                 'url': 'https://ufmg.br/editais',
                 'palavras_chave': ['pós-graduação', 'especialização', 'ead']
             },
             {
                 'nome': 'UFRGS',
-                'url': 'https://www.ufrgs.br/ufrgs/editais',
+                'url': 'https://www.ufrgs.br/sead/noticias/',
                 'palavras_chave': ['pós-graduação', 'especialização', 'ead', 'distância']
             }
         ]
@@ -182,40 +173,65 @@ class PosGraduacaoMonitor:
     
     def gerar_json_frontend(self):
         """
-        Gera arquivo JSON otimizado para o frontend consumir
+        Gera arquivo JSON otimizado para o frontend consumir.
+        Retém até meses_arquivo (4). Frontend exibe meses_retroativos (2)
+        por padrão, com botão para estender.
         """
         try:
-            # Ordena por data (mais recente primeiro)
+            agora = datetime.now()
+            limite_padrao = agora - timedelta(days=self.meses_retroativos * 30)
+            limite_arquivo = agora - timedelta(days=self.meses_arquivo * 30)
+
+            def dentro_limite(edital, limite):
+                d = self._data_referencia_edital(edital)
+                return d is None or d >= limite
+
+            editais_arquivo = [e for e in self.dados_anteriores['editais_encontrados']
+                               if dentro_limite(e, limite_arquivo)]
+            editais_padrao = [e for e in editais_arquivo
+                               if dentro_limite(e, limite_padrao)]
+
+            # Ordena por data (mais recente primeiro) - usa lista de arquivo (4m)
             editais_ordenados = sorted(
-                self.dados_anteriores['editais_encontrados'],
-                key=lambda x: x['data_encontrado'],
+                editais_arquivo,
+                key=lambda x: (self._data_referencia_edital(x) or datetime.min).isoformat(),
                 reverse=True
             )
-            
+
+            # Estatísticas sobre a visão padrão (2m) para bater com o total exibido
+            editais_padrao_ord = sorted(
+                editais_padrao,
+                key=lambda x: (self._data_referencia_edital(x) or datetime.min).isoformat(),
+                reverse=True
+            )
+
             # Estrutura otimizada para o frontend
             dados_frontend = {
-                'ultima_atualizacao': datetime.now().isoformat(),
-                'total_oportunidades': len(editais_ordenados),
+                'ultima_atualizacao': agora.isoformat(),
+                'filtro_padrao_meses': self.meses_retroativos,
+                'filtro_extendido_meses': self.meses_arquivo,
+                'total_oportunidades': len(editais_padrao),
+                'total_extendido': len(editais_arquivo),
                 'oportunidades': editais_ordenados,
                 'institutos_unicos': list(set(e['instituto'] for e in editais_ordenados)),
                 'estatisticas': {
                     'por_instituto': {}
                 }
             }
-            
-            # Calcula estatísticas por instituto
-            for edital in editais_ordenados:
+
+            # Calcula estatísticas por instituto (visão padrão de 2m)
+            for edital in editais_padrao_ord:
                 instituto = edital['instituto']
                 if instituto not in dados_frontend['estatisticas']['por_instituto']:
                     dados_frontend['estatisticas']['por_instituto'][instituto] = 0
                 dados_frontend['estatisticas']['por_instituto'][instituto] += 1
-            
+
             # Salva o JSON para o frontend
             with open('resultados.json', 'w', encoding='utf-8') as f:
                 json.dump(dados_frontend, f, ensure_ascii=False, indent=2)
-            
+
             print("✅ JSON do frontend gerado com sucesso")
-            print(f"   Total de oportunidades: {dados_frontend['total_oportunidades']}")
+            print(f"   Padrão ({self.meses_retroativos}m): {len(editais_padrao)} | Arquivo ({self.meses_arquivo}m): {len(editais_arquivo)}")
             
         except Exception as e:
             print(f"❌ Erro ao gerar JSON do frontend: {e}")
@@ -253,13 +269,15 @@ class PosGraduacaoMonitor:
                 if any(palavra in texto for palavra in site['palavras_chave']):
                     # Verifica se é relacionado a tecnologia/TI
                     if self.e_area_tecnologia(texto):
-                        # Verifica se é recente (filtro de data)
+                        # Verifica se é recente (filtro de data: retém até meses_arquivo)
                         if self.e_edital_recente(texto, contexto):
+                            data_pub = self.extrair_data_do_texto(f"{texto} {contexto}".lower())
                             edital = {
                                 'titulo': link.get_text().strip(),
                                 'url': self.normalizar_url(href, site['url']),
                                 'instituto': site['nome'],
-                                'data_encontrado': datetime.now().isoformat()
+                                'data_encontrado': datetime.now().isoformat(),
+                                'data_publicacao': data_pub.isoformat() if data_pub else None
                             }
                             
                             # Verifica se é novo
@@ -412,83 +430,140 @@ class PosGraduacaoMonitor:
         
         return any(termo in texto for termo in termos_tech)
     
+    def _mes_para_numero(self, nome_mes):
+        """Converte nome do mês em português para número"""
+        mapa = {
+            'janeiro': 1, 'jan': 1,
+            'fevereiro': 2, 'fev': 2,
+            'março': 3, 'marco': 3, 'mar': 3,
+            'abril': 4, 'abr': 4,
+            'maio': 5, 'mai': 5,
+            'junho': 6, 'jun': 6,
+            'julho': 7, 'jul': 7,
+            'agosto': 8, 'ago': 8,
+            'setembro': 9, 'set': 9, 'sept': 9,
+            'outubro': 10, 'out': 10, 'oct': 10,
+            'novembro': 11, 'nov': 11,
+            'dezembro': 12, 'dez': 12, 'dec': 12,
+        }
+        return mapa.get(nome_mes.strip().lower())
+
     def extrair_data_do_texto(self, texto):
         """
         Tenta extrair uma data do texto do link ou contexto
         Retorna a data extraída ou None se não encontrar
-        
+
         Formatos suportados:
         - DD/MM/YYYY ou DD/MM/YY
         - DD-MM-YYYY ou DD-MM-YY
         - YYYY-MM-DD (ISO)
-        - Mês por extenso: "15 de janeiro de 2025"
+        - DD de mês por extenso de YYYY ("15 de janeiro de 2025")
+        - Mês por extenso de YYYY ("outubro de 2026")
+        - Relativos: "há X dias/horas", "ontem", "hoje"
         """
-        # Padrões de data
+        if not texto:
+            return None
+        t = texto.lower()
+        agora = datetime.now()
+
+        # 1. Relativos: "há 2 dias", "ha 3 horas", "há 15 minutos", "2 dias atrás"
+        m_rel = re.search(r'h[áa]\s+(\d+)\s+(minuto|hora|dia|semana|m[eê]s)', t)
+        if m_rel:
+            try:
+                qtd = int(m_rel.group(1))
+                unidade = m_rel.group(2)
+                if 'minuto' in unidade or 'hora' in unidade:
+                    return agora
+                if 'dia' in unidade:
+                    return agora - timedelta(days=qtd)
+                if 'semana' in unidade:
+                    return agora - timedelta(days=qtd * 7)
+                if 'mês' in unidade or 'mes' in unidade:
+                    return agora - timedelta(days=qtd * 30)
+            except:
+                pass
+        if re.search(r'\b(ontem)\b', t):
+            return agora - timedelta(days=1)
+        if re.search(r'\b(hoje)\b', t):
+            return agora
+
+        # 2. Padrões numéricos
         padroes = [
-            # DD/MM/YYYY ou DD/MM/YY
             r'\b(\d{1,2})[/\-](\d{1,2})[/\-](\d{2,4})\b',
-            # YYYY-MM-DD
             r'\b(\d{4})[/\-](\d{1,2})[/\-](\d{1,2})\b',
         ]
-        
         for padrao in padroes:
-            match = re.search(padrao, texto)
+            match = re.search(padrao, t)
             if match:
                 try:
                     grupos = match.groups()
-                    
-                    # Tenta diferentes formatos
                     if len(grupos[0]) == 4:  # YYYY-MM-DD
                         ano, mes, dia = int(grupos[0]), int(grupos[1]), int(grupos[2])
                     else:  # DD/MM/YYYY
                         dia, mes, ano = int(grupos[0]), int(grupos[1]), int(grupos[2])
-                    
-                    # Converte ano de 2 dígitos para 4
                     if ano < 100:
                         ano = 2000 + ano if ano < 50 else 1900 + ano
-                    
-                    # Valida a data
                     if 1 <= mes <= 12 and 1 <= dia <= 31 and 2000 <= ano <= 2030:
                         return datetime(ano, mes, dia)
                 except:
                     continue
-        
-        # Tenta extrair apenas o ano (como último recurso)
-        match_ano = re.search(r'\b(20\d{2})\b', texto)
+
+        # 3. "15 de janeiro de 2025" / "15 jan 2025" / "15/janeiro/2025"
+        m_ext = re.search(
+            r'\b(\d{1,2})\s+(?:de\s+)?([a-zçãõéê]+)\s+(?:de\s+)?(20\d{2})\b', t)
+        if m_ext:
+            try:
+                dia = int(m_ext.group(1))
+                mes = self._mes_para_numero(m_ext.group(2))
+                ano = int(m_ext.group(3))
+                if mes and 1 <= dia <= 31 and 2000 <= ano <= 2030:
+                    return datetime(ano, mes, dia)
+            except:
+                pass
+
+        # 4. "outubro de 2026" / "maio/2026" (assume dia 1)
+        m_mes_ano = re.search(r'\b([a-zçãõéê]+)\s+(?:de\s+|/)?(20\d{2})\b', t)
+        if m_mes_ano:
+            try:
+                mes = self._mes_para_numero(m_mes_ano.group(1))
+                ano = int(m_mes_ano.group(2))
+                if mes and 2000 <= ano <= 2030:
+                    return datetime(ano, mes, 1)
+            except:
+                pass
+
+        # 5. Apenas o ano (último recurso)
+        match_ano = re.search(r'\b(20\d{2})\b', t)
         if match_ano:
             try:
                 ano = int(match_ano.group(1))
-                # Assume que é do início do ano
                 return datetime(ano, 1, 1)
             except:
                 pass
-        
+
         return None
-    
-    def e_edital_recente(self, texto, contexto=''):
+
+    def e_edital_recente(self, texto, contexto='', meses=None):
         """
-        Verifica se o edital é recente (últimos X meses configurados)
-        
+        Verifica se o edital é recente.
+
         Estratégia:
         1. Tenta extrair data do texto do link
         2. Tenta extrair data do contexto ao redor
         3. Se não encontrar data, considera como recente (assume que é novo)
         """
-        data_limite = datetime.now() - timedelta(days=self.meses_retroativos * 30)
-        
-        # Tenta extrair data do texto do link
+        limite_meses = meses if meses is not None else self.meses_arquivo
+        data_limite = datetime.now() - timedelta(days=limite_meses * 30)
+
         texto_completo = f"{texto} {contexto}".lower()
         data_encontrada = self.extrair_data_do_texto(texto_completo)
-        
+
         if data_encontrada:
-            # Se encontrou data, verifica se é recente
             e_recente = data_encontrada >= data_limite
             if not e_recente:
                 print(f"  ⏭️ Ignorado (muito antigo): {texto[:60]}... ({data_encontrada.strftime('%d/%m/%Y')})")
             return e_recente
-        
-        # Se não encontrou data, assume que é recente
-        # (melhor pegar algo novo sem data do que perder oportunidade)
+
         return True
     
     def normalizar_url(self, href, url_base):
@@ -604,27 +679,38 @@ class PosGraduacaoMonitor:
         
         return html
     
+    def _data_referencia_edital(self, edital):
+        """Retorna a melhor data disponível: data_publicacao se válida, senão data_encontrado"""
+        try:
+            dp = edital.get('data_publicacao')
+            if dp:
+                return datetime.fromisoformat(dp)
+        except:
+            pass
+        try:
+            return datetime.fromisoformat(edital['data_encontrado'])
+        except:
+            return None
+
     def limpar_historico_antigo(self):
         """
-        Remove editais antigos do histórico (além dos X meses configurados)
-        Útil para fazer limpeza inicial ou periódica
+        Remove editais antigos do histórico (além de meses_arquivo)
+        Mantém até 4 meses para permitir o botão "ver mais"
         """
         if not self.dados_anteriores['editais_encontrados']:
             print("ℹ️ Histórico vazio, nada para limpar")
             return
-        
-        data_limite = datetime.now() - timedelta(days=self.meses_retroativos * 30)
+
+        data_limite = datetime.now() - timedelta(days=self.meses_arquivo * 30)
         total_antes = len(self.dados_anteriores['editais_encontrados'])
-        
+
         # Filtra apenas editais recentes
         editais_recentes = []
         for edital in self.dados_anteriores['editais_encontrados']:
-            try:
-                data_edital = datetime.fromisoformat(edital['data_encontrado'])
-                if data_edital >= data_limite:
-                    editais_recentes.append(edital)
-            except:
-                # Se não conseguir parsear a data, mantém o edital
+            data_edital = self._data_referencia_edital(edital)
+            if data_edital is None:
+                editais_recentes.append(edital)
+            elif data_edital >= data_limite:
                 editais_recentes.append(edital)
         
         self.dados_anteriores['editais_encontrados'] = editais_recentes
@@ -644,18 +730,24 @@ class PosGraduacaoMonitor:
         print("="*60)
         print("🚀 Iniciando monitoramento de Pós-Graduações EAD")
         print(f"📊 Monitorando {len(self.sites)} institutos")
-        print(f"📅 Buscando editais dos últimos {self.meses_retroativos} meses")
+        print(f"📅 Exibição padrão: últimos {self.meses_retroativos} meses | Arquivo: {self.meses_arquivo} meses")
         print("="*60)
-        
+
+        # Limpa itens além do arquivo (4m) antes de processar
+        self.limpar_historico_antigo()
+
         # Faz scraping de cada site
         for site in self.sites:
             editais = self.fazer_scraping(site)
             self.novas_oportunidades.extend(editais)
-        
+
         # Se encontrou novidades, atualiza histórico
         if self.novas_oportunidades:
             for oport in self.novas_oportunidades:
                 self.dados_anteriores['editais_encontrados'].append(oport)
+            self.salvar_dados_historicos()
+        else:
+            # Garante que limpeza de antigos seja persistida mesmo sem novidades
             self.salvar_dados_historicos()
         
         # Gera JSON para o frontend (sempre, mesmo sem novidades)

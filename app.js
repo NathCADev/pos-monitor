@@ -19,9 +19,25 @@ const AppState = {
   filteredData: null,
   currentFilters: {
     instituto: '',
-    searchTerm: ''
+    searchTerm: '',
+    periodoMeses: 2
   }
 };
+
+function getDataReferencia(oport) {
+  const raw = oport.data_publicacao || oport.data_encontrado;
+  if (!raw) return null;
+  const d = new Date(raw);
+  return isNaN(d.getTime()) ? null : d;
+}
+
+function dentroDoPeriodo(oport, meses) {
+  const d = getDataReferencia(oport);
+  if (!d) return true;
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - meses * 30);
+  return d >= cutoff;
+}
 
 /* ============================================
    2. DATA FETCHING
@@ -66,14 +82,15 @@ async function initializeApp() {
   
   // Atualiza state
   AppState.data = data;
+  AppState.currentFilters.periodoMeses = data.filtro_padrao_meses || 2;
   AppState.filteredData = data.oportunidades;
-  
+
   // Renderiza UI
   hideLoading();
   renderStatusBar(data);
   populateFilters(data);
-  renderOpportunities(AppState.filteredData);
-  renderStatistics(data);
+  applyFilters();
+  updateToggleButton();
 }
 
 /* ============================================
@@ -93,7 +110,12 @@ function renderStatusBar(data) {
   }
   
   if (totalCountElement) {
-    totalCountElement.textContent = data.total_oportunidades;
+    const padrao = data.filtro_padrao_meses || 2;
+    const ext = data.filtro_extendido_meses || 4;
+    const ativos = AppState.filteredData ? AppState.filteredData.length : data.total_oportunidades;
+    const total = data.total_extendido ?? data.oportunidades.length;
+    totalCountElement.textContent = `${ativos} (2m) / ${total} (4m)`;
+    totalCountElement.title = `Exibindo últimos ${padrao} meses. Total retido: últimos ${ext} meses.`;
   }
 }
 
@@ -148,7 +170,7 @@ function createOpportunityCard(oport) {
     
     <div class="card__meta">
       <i class="fa-regular fa-calendar"></i>
-      <span>Encontrado ${formatRelativeTime(oport.data_encontrado)}</span>
+      <span>${formatPeriodoCard(oport)}</span>
     </div>
     
     <a href="${escapeHtml(oport.url)}" 
@@ -168,33 +190,59 @@ function createOpportunityCard(oport) {
  * @param {Object} data - Dados completos
  */
 function renderStatistics(data) {
+  // Compat: recalcula a partir do filtro atual quando possível
+  if (AppState.filteredData) {
+    renderStatisticsFiltered(AppState.filteredData);
+    return;
+  }
   const section = document.getElementById('statisticsSection');
   const grid = document.getElementById('statisticsGrid');
-  
+
   if (!grid || !data.estatisticas) return;
-  
+
   grid.innerHTML = '';
-  
+
   // Ordena institutos por quantidade
   const institutos = Object.entries(data.estatisticas.por_instituto)
     .sort((a, b) => b[1] - a[1]);
-  
+
   // Renderiza cards de estatísticas
   institutos.forEach(([instituto, count]) => {
     const statCard = document.createElement('div');
     statCard.className = 'stat-card';
-    
+
     statCard.innerHTML = `
       <div class="stat-card__label">${escapeHtml(instituto)}</div>
       <div class="stat-card__value">${count}</div>
     `;
-    
+
     grid.appendChild(statCard);
   });
-  
+
   if (section) {
     section.style.display = 'block';
   }
+}
+
+function renderStatisticsFiltered(opportunities) {
+  const section = document.getElementById('statisticsSection');
+  const grid = document.getElementById('statisticsGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  const counts = {};
+  (opportunities || []).forEach(o => {
+    counts[o.instituto] = (counts[o.instituto] || 0) + 1;
+  });
+  Object.entries(counts).sort((a, b) => b[1] - a[1]).forEach(([instituto, count]) => {
+    const statCard = document.createElement('div');
+    statCard.className = 'stat-card';
+    statCard.innerHTML = `
+      <div class="stat-card__label">${escapeHtml(instituto)}</div>
+      <div class="stat-card__value">${count}</div>
+    `;
+    grid.appendChild(statCard);
+  });
+  if (section) section.style.display = 'block';
 }
 
 /**
@@ -226,6 +274,10 @@ function applyFilters() {
   if (!AppState.data) return;
   
   let filtered = AppState.data.oportunidades;
+
+  // Filtro por período (2m padrão / 4m estendido)
+  const meses = AppState.currentFilters.periodoMeses || 2;
+  filtered = filtered.filter(oport => dentroDoPeriodo(oport, meses));
   
   // Filtro por instituto
   if (AppState.currentFilters.instituto) {
@@ -245,6 +297,28 @@ function applyFilters() {
   
   AppState.filteredData = filtered;
   renderOpportunities(filtered);
+  renderStatisticsFiltered(filtered);
+  renderStatusBar(AppState.data);
+}
+
+function updateToggleButton() {
+  const btn = document.getElementById('togglePeriodo');
+  if (!btn || !AppState.data) return;
+  const padrao = AppState.data.filtro_padrao_meses || 2;
+  const ext = AppState.data.filtro_extendido_meses || 4;
+  const atual = AppState.currentFilters.periodoMeses || padrao;
+  btn.textContent = atual === padrao
+    ? `Ver últimos ${ext} meses`
+    : `Voltar para ${padrao} meses`;
+}
+
+function togglePeriodo() {
+  const padrao = AppState.data?.filtro_padrao_meses || 2;
+  const ext = AppState.data?.filtro_extendido_meses || 4;
+  AppState.currentFilters.periodoMeses =
+    (AppState.currentFilters.periodoMeses === ext) ? padrao : ext;
+  applyFilters();
+  updateToggleButton();
 }
 
 /**
@@ -253,6 +327,7 @@ function applyFilters() {
 function setupFilters() {
   const filterInstituto = document.getElementById('filterInstituto');
   const searchTerm = document.getElementById('searchTerm');
+  const toggleBtn = document.getElementById('togglePeriodo');
   
   if (filterInstituto) {
     filterInstituto.addEventListener('change', (e) => {
@@ -271,6 +346,10 @@ function setupFilters() {
         applyFilters();
       }, 300);
     });
+  }
+
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', togglePeriodo);
   }
 }
 
@@ -303,7 +382,9 @@ function formatDateTime(isoString) {
  * @returns {string} Tempo relativo formatado
  */
 function formatRelativeTime(isoString) {
+  if (!isoString) return 'data desconhecida';
   const date = new Date(isoString);
+  if (isNaN(date.getTime())) return 'data desconhecida';
   const now = new Date();
   const diffMs = now - date;
   const diffMins = Math.floor(diffMs / 60000);
@@ -317,6 +398,14 @@ function formatRelativeTime(isoString) {
   
   // Mais de uma semana, mostra a data completa
   return formatDateTime(isoString);
+}
+
+function formatPeriodoCard(oport) {
+  const ref = oport.data_publicacao || oport.data_encontrado;
+  if (oport.data_publicacao) {
+    return `Publicado ${formatRelativeTime(oport.data_publicacao)}`;
+  }
+  return `Encontrado ${formatRelativeTime(ref)}`;
 }
 
 /**
