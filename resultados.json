@@ -1,7 +1,12 @@
 {
-  "ultima_atualizacao": "2026-10-07T21:13:25.370276",
+  "ultima_atualizacao": "2026-10-07T21:19:30.639440",
   "filtro_padrao_meses": 2,
-  "filtro_extendido_meses": 4,
+  "filtro_extendido_meses": 6,
+  "opcoes_periodo_meses": [
+    2,
+    4,
+    6
+  ],
   "total_oportunidades": 0,
   "total_extendido": 0,
   "oportunidades": [],
