@@ -1,5 +1,5 @@
 {
-  "ultima_atualizacao": "2026-10-15T18:04:27.499865",
+  "ultima_atualizacao": "2026-10-19T17:16:51.837314",
   "filtro_padrao_meses": 2,
   "filtro_extendido_meses": 6,
   "opcoes_periodo_meses": [
@@ -7,9 +7,16 @@
     4,
     6
   ],
-  "total_oportunidades": 1,
-  "total_extendido": 1,
+  "total_oportunidades": 2,
+  "total_extendido": 2,
   "oportunidades": [
+    {
+      "titulo": "Curso Superior EaD\nTecnologia em Inteligência Artificial\n\n\n\n\narticle Edital:\n5/2015 - CREAD/GABR/REITORIA\n\n\ndomain Seleção para:\n\n    \n        Fortaleza - São Gerardo",
+      "url": "https://ifce.edu.br/campus/reitoria/estude-no-ifce/tecnologia-em-inteligencia-artificial/",
+      "instituto": "IFCE",
+      "data_encontrado": "2026-10-19T17:16:29.566986",
+      "data_publicacao": "2026-10-19T17:16:29.566937"
+    },
     {
       "titulo": "Especialização em Gestão da Informação Pública (EaD) publica edital para ingresso de servidores públicos",
       "url": "https://www.ufrgs.br/sead/2026/04/28/especializacao-em-gestao-da-informacao-publica-ead-publica-edital-para-selecao-de-alunos-2/",
@@ -19,10 +26,12 @@
     }
   ],
   "institutos_unicos": [
+    "IFCE",
     "UFRGS"
   ],
   "estatisticas": {
     "por_instituto": {
+      "IFCE": 1,
       "UFRGS": 1
     }
   }
