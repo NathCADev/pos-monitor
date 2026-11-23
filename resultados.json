@@ -1,5 +1,5 @@
 {
-  "ultima_atualizacao": "2026-11-19T22:00:00.525493",
+  "ultima_atualizacao": "2026-11-23T22:20:45.163422",
   "filtro_padrao_meses": 2,
   "filtro_extendido_meses": 6,
   "opcoes_periodo_meses": [
@@ -33,8 +33,8 @@
     }
   ],
   "institutos_unicos": [
-    "IFCE",
-    "UFRGS"
+    "UFRGS",
+    "IFCE"
   ],
   "estatisticas": {
     "por_instituto": {
